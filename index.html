@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shri Melan Restaurant Management</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Bootstrap Icons for UI elements -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+      /* CSS RESET & DEFAULTS */
+:root {
+    --bg-color: #F8F9FA;
+    --sidebar-bg: #FFFFFF;
+    --card-bg: #FFFFFF;
+    --text-color: #343A40;
+    --text-light: #6c757d;
+    --accent-color: #E57373; /* Terracotta */
+    --accent-hover: #ef5350;
+    --green-color: #66BB6A;
+    --yellow-color: #FFEE58;
+    --border-color: #dee2e6;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --font-family: 'Poppins', sans-serif;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* MAIN APP LAYOUT */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100%;
+    z-index: 1000;
+}
+
+.main-content {
+    flex-grow: 1;
+    margin-left: 260px;
+    padding: 2rem;
+}
+
+/* SIDEBAR STYLES */
+.sidebar-header {
+    margin-bottom: 2.5rem;
+}
+.sidebar-header h1 {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    color: rgba(107, 73, 37, 0.773);
+    font-family: 'Monoton';
+}
+.sidebar-header .bi-egg-fried {
+    margin-right: 0.5rem;
+    
+}
+.logo {
+    margin-right: 0.5rem;
+    border-radius: 10rem;
+}
+
+.nav-menu {
+    list-style-type: none;
+}
+.nav-item a {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-light);
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s;
+}
+.nav-item a:hover {
+    background-color: #f1f3f5;
+    color: var(--text-color);
+}
+.nav-item a.active {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: 0 4px 8px rgba(229, 115, 115, 0.3);
+}
+.nav-item a i {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* MAIN CONTENT & PAGE STYLES */
+.page {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+.page.active {
+    display: block;
+}
+.page-header {
+    margin-bottom: 2rem;
+}
+.page-header h2 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+.page-header p {
+    color: var(--text-light);
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* DASHBOARD: KPI CARDS */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.kpi-card {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+.kpi-card-title {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+.kpi-card-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-top: 0.5rem;
+}
+
+/* DASHBOARD: CHARTS */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.chart-container {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+.chart-container h3 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* TABLES */
+.table-container {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.table-controls .menu-form-inputs {
+    display: flex;
+    gap: 1rem;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+th {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+tbody tr:last-child td {
+    border-bottom: none;
+}
+tbody tr:hover {
+    background-color: #f8f9fa;
+}
+.action-buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--text-light);
+    transition: color 0.2s;
+}
+.action-buttons .edit-btn:hover { color: #42a5f5; }
+.action-buttons .delete-btn:hover { color: #ef5350; }
+.status-reorder {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+/* FORMS & BUTTONS */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: 0 2px 4px rgba(229, 115, 115, 0.3);
+}
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(229, 115, 115, 0.4);
+}
+.btn-secondary {
+    background-color: #e9ecef;
+    color: var(--text-color);
+}
+.btn-secondary:hover {
+    background-color: #ced4da;
+}
+.form-group {
+    margin-bottom: 1rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+input[type="text"], input[type="number"], input[type="search"], select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: var(--font-family);
+}
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(229, 115, 115, 0.2);
+}
+
+/* MODAL STYLES */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s;
+}
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 2rem;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    animation: slideIn 0.3s;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.modal-header h3 {
+    font-size: 1.5rem;
+}
+.close-btn {
+    color: #aaa;
+    font-size: 1.75rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-btn:hover, .close-btn:focus {
+    color: black;
+}
+.modal-footer {
+    margin-top: 1.5rem;
+    text-align: right;
+}
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* ORDERS PAGE SPECIFIC STYLES */
+.order-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+}
+#current-order-list {
+    list-style-type: none;
+}
+#current-order-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+#current-order-total {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: right;
+}
+#autocomplete-results {
+    list-style: none;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    background: white;
+    width: calc(100% - 2px); /* Adjust for border */
+    z-index: 100;
+}
+#autocomplete-results li {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+#autocomplete-results li:hover {
+    background-color: #f1f3f5;
+}
+
+/* INVENTORY PAGE: REORDER SECTION */
+.reorder-suggestions {
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+/* Reorder Needed State (Warning) */
+.reorder-suggestions.reorder-needed {
+    background-color: #fffbe6;
+    border: 1px solid #ffe58f;
+}
+.reorder-suggestions.reorder-needed h3 {
+    color: #d46b08;
+}
+
+/* In Stock State (Success) */
+.reorder-suggestions.in-stock {
+    background-color: #f6ffed;
+    border: 1px solid #b7eb8f;
+}
+.reorder-suggestions.in-stock h3 {
+    color: #389e0d;
+}
+
+.reorder-suggestions ul {
+    list-style-position: inside;
+}
+
+/* --- RESPONSIVE STYLES --- */
+
+/* Laptops and Large Tablets */
+@media (max-width: 1200px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    .order-layout {
+        grid-template-columns: 1fr;
+    }
+    .kpi-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+
+
+/* Tablets and Mobile Phones */
+@media (max-width: 768px) {
+    /* Mobile Navigation - Bottom Bar */
+    .sidebar {
+        width: 100%;
+        height: 70px;
+        position: fixed;
+        bottom: 0;
+        top: auto;
+        left: 0;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.5rem;
+        border-right: none;
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        /* Add padding to the bottom to avoid content being hidden by the nav bar */
+        padding: 1rem;
+        padding-bottom: 80px;
+    }
+    
+    .sidebar-header { 
+        display: none; 
+        
+    }
+   
+
+    
+    .nav-menu { 
+        display: flex; 
+        width: 100%; 
+        justify-content: space-around;
+        margin: 0;
+    }
+    
+    .nav-item {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .nav-item a { 
+        flex-direction: column;
+        justify-content: center;
+        padding: 0.5rem 0;
+        margin: 0;
+        font-size: 0.7rem;
+    }
+    
+    .nav-item a span { 
+        font-size: 0.65rem;
+        margin-top: 0.2rem;
+    }
+    
+    .nav-item a i { 
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .page-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .kpi-card {
+        padding: 1rem;
+    }
+    
+    .kpi-card-value {
+        font-size: 1.8rem;
+    }
+
+    .charts-grid, .order-layout {
+        gap: 1rem;
+    }
+    .category-chart, .revenue-chart {
+        max-height: 250px;
+    }
+
+    .table-container {
+        padding: 2rem;
+        max-width: 91vw;
+    }
+
+    
+    .table-controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .table-controls > div, .table-controls .menu-form-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Ensure table content doesn't break layout; allows horizontal scroll */
+    table {
+        min-width: 600px;
+        max-width: 90vw;
+    }
+    
+    th, td {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .table-controls .btn {
+        width: 100%;
+    }
+
+    .modal-content {
+        margin: 5% auto;
+        width: 95%;
+        max-width: none;
+        padding: 1.5rem;
+    }
+}
+
+/* Small Mobile Phones */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 1rem;
+        padding-bottom: 70px;
+    }
+    
+    .page-header {
+        margin-bottom: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .page-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .kpi-card-value {
+        font-size: 1.5rem;
+    }
+    
+    .table-container {
+        padding: 1.5rem;
+    }
+    
+    th, td {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .modal-content {
+        padding: 1rem;
+    }
+    
+    .sidebar {
+        height: 60px;
+    }
+
+    .nav-item a i {
+        font-size: 1rem;
+    }
+    
+    .nav-item a span {
+        font-size: 0.6rem;
+    }
+}
+
+/* Adjustments for Mobile in Landscape Orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+    .main-content {
+        padding-bottom: 70px;
+    }
+    
+    .sidebar {
+        height: 60px;
+    }
+    
+    .nav-item a {
+        padding: 0.3rem;
+    }
+    
+    /* Hide text labels in landscape to save vertical space */
+    .nav-item a span {
+        display: none;
+    }
+
+    .nav-item a i {
+        font-size: 1.2rem;
+    }
+}
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- SIDEBAR NAVIGATION -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1><img class="logo" src= "logo.png" height="60"> Shri Melan</h1>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard"><i class="bi bi-grid-1x2-fill"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="menu"><i class="bi bi-book-fill"></i> <span>Menu</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="orders"><i class="bi bi-receipt-cutoff"></i> <span>Orders</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="inventory"><i class="bi bi-box-seam-fill"></i> <span>Inventory</span></a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- DASHBOARD PAGE -->
+            <div id="dashboard-page" class="page active">
+                <div class="page-header">
+                    <h2>Dashboard</h2>
+                    <p>A quick overview of your restaurant's performance today.</p>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-title">Total Revenue (Today)</div>
+                        <div class="kpi-card-value" id="kpi-today-revenue">₹0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-title">Total Orders (Today)</div>
+                        <div class="kpi-card-value" id="kpi-today-orders">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-title">Average Order Value</div>
+                        <div class="kpi-card-value" id="kpi-avg-order-value">₹0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-title">Total Menu Items</div>
+                        <div class="kpi-card-value" id="kpi-total-menu-items">0</div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>Revenue (Last 7 Days)</h3>
+                        <canvas id="revenue-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Sales by Category</h3>
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                </div>
+                 <div class="chart-container">
+                    <h3>Top 5 Popular Items (Today)</h3>
+                    <canvas id="popular-items-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- MENU PAGE -->
+            <div id="menu-page" class="page">
+                <div class="page-header">
+                    <h2>Menu Master</h2>
+                    <p>Manage all your delicious menu items here.</p>
+                </div>
+                <div class="table-container">
+                    <div class="table-controls">
+                        <div class="menu-form-inputs">
+                            <input type="search" id="menu-search" placeholder="Search by name...">
+                            <select id="menu-category-filter">
+                                <option value="all">All Categories</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="add-menu-item-btn"><i class="bi bi-plus-circle"></i> Add New Item</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Price (₹)</th>
+                                <th>Cost (₹)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="menu-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ORDERS PAGE -->
+            <div id="orders-page" class="page">
+                <div class="page-header">
+                    <h2>Orders Management</h2>
+                    <p>Create new orders and view past transactions.</p>
+                </div>
+                <div class="order-layout">
+                    <div class="table-container">
+                        <h3>New Order</h3>
+                        <form id="new-order-form">
+                            <div class="form-group" style="position: relative;">
+                                <label for="order-item-name">Item Name</label>
+                                <input type="text" id="order-item-name" placeholder="Start typing item name..." autocomplete="off">
+                                <ul id="autocomplete-results"></ul>
+                            </div>
+                            <div class="form-group">
+                                <label for="order-item-qty">Quantity</label>
+                                <input type="number" id="order-item-qty" value="1" min="1">
+                            </div>
+                            <button type="submit" class="btn btn-secondary" style="width: 100%;">Add to Order</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <h3>Current Order</h3>
+                        <ul id="current-order-list">
+                           <!-- Items will be added here by JS -->
+                        </ul>
+                        <div id="current-order-total">Total: ₹0.00</div>
+                        <button class="btn btn-primary" id="confirm-order-btn" style="width: 100%; margin-top: 1rem;">Confirm Order</button>
+                    </div>
+                </div>
+                
+                <div class="table-container" style="margin-top: 2rem;">
+                    <div class="table-controls">
+                        <h3>Past Orders</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary" id="import-orders-btn"><i class="bi bi-upload"></i> Import CSV</button>
+                            <button class="btn btn-secondary" id="export-orders-btn"><i class="bi bi-download"></i> Export to CSV</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Timestamp</th>
+                                <th>Items</th>
+                                <th>Total (₹)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body"></tbody>
+                    </table>
+                    <!-- Hidden file input for CSV import -->
+                    <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                </div>
+            </div>
+
+            <!-- INVENTORY PAGE -->
+            <div id="inventory-page" class="page">
+                <div class="page-header">
+                    <h2>Inventory Management</h2>
+                    <p>Keep track of your stock levels.</p>
+                </div>
+
+                <div class="reorder-suggestions" id="reorder-section">
+                    <h3 id="reorder-title"><i class="bi bi-exclamation-triangle-fill"></i> Reorder Needed</h3>
+                    <ul id="reorder-list">
+                        <!-- Items will be listed here dynamically -->
+                    </ul>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-controls">
+                        <div></div> <!-- spacer -->
+                        <button class="btn btn-primary" id="add-inventory-item-btn"><i class="bi bi-plus-circle"></i> Add New Stock</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Current Stock (units)</th>
+                                <th>Low Stock Threshold</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- GENERIC MODAL -->
+    <div id="app-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal Title</h3>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Form content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- APPLICATION STATE & LOCALSTORAGE --- //
+
+        const App = {
+            state: {
+                menuItems: [],
+                orders: [],
+                inventory: []
+            },
+            
+            // Centralized function to save the entire state to localStorage
+            saveState() {
+                localStorage.setItem('restaurantData', JSON.stringify(this.state));
+            },
+
+            // Function to load state from localStorage or initialize with dummy data
+            loadState() {
+                const data = localStorage.getItem('restaurantData');
+                if (data) {
+                    this.state = JSON.parse(data);
+                } else {
+                    // Initialize with some dummy data if it's the first time
+                    this.state = {
+                        menuItems: [
+                            {id: 1, name: "Veg Noodles", category: "Chinese", price: 90, cost: 30},
+                            {id: 2, name: "Paneer Chilli", category: "Chinese", price: 120, cost: 45},
+                            {id: 3, name: "Masala Dosa", category: "South Indian", price: 80, cost: 25},
+                            {id: 4, name: "Margherita Pizza", category: "Italian", price: 250, cost: 80},
+                        ],
+                        orders: [],
+                        inventory: [
+                            {id: 1, name: "Onions (kg)", currentStock: 5, threshold: 2},
+                            {id: 2, name: "Pizza Base (pcs)", currentStock: 10, threshold: 5},
+                            {id: 3, name: "Paneer (kg)", currentStock: 2, threshold: 1},
+                        ]
+                    };
+                    this.saveState();
+                }
+            },
+
+            // --- INITIALIZATION --- //
+
+            init() {
+                this.loadState();
+                this.setupEventListeners();
+                this.showPage('dashboard');
+            },
+
+            // --- PAGE NAVIGATION & RENDERING --- //
+
+            setupEventListeners() {
+                // Sidebar navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const page = e.currentTarget.dataset.page;
+                        this.showPage(page);
+                    });
+                });
+
+                // Modal close button
+                document.querySelector('.close-btn').addEventListener('click', () => this.closeModal());
+                window.addEventListener('click', (event) => {
+                    if (event.target == document.getElementById('app-modal')) {
+                        this.closeModal();
+                    }
+                });
+
+                // Setup listeners for each page
+                this.Menu.init();
+                this.Orders.init();
+                this.Inventory.init();
+            },
+
+            showPage(pageId) {
+                document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                document.getElementById(`${pageId}-page`).classList.add('active');
+
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.dataset.page === pageId) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // Call the render function for the specific page
+                switch(pageId) {
+                    case 'dashboard': this.Dashboard.render(); break;
+                    case 'menu': this.Menu.render(); break;
+                    case 'orders': this.Orders.render(); break;
+                    case 'inventory': this.Inventory.render(); break;
+                }
+            },
+
+            // --- MODAL HELPERS --- //
+            openModal(title, content) {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-body').innerHTML = content;
+                document.getElementById('app-modal').style.display = 'block';
+            },
+
+            closeModal() {
+                document.getElementById('app-modal').style.display = 'none';
+                document.getElementById('modal-body').innerHTML = '';
+            },
+
+
+            // --- PAGE-SPECIFIC MODULES --- //
+
+            Dashboard: {
+                charts: {}, // To hold chart instances
+                render() {
+                    this.renderKPIs();
+                    this.renderCharts();
+                },
+
+                renderKPIs() {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const todaysOrders = App.state.orders.filter(o => o.timestamp.startsWith(today));
+                    
+                    const todayRevenue = todaysOrders.reduce((sum, order) => sum + order.totalValue, 0);
+                    const todayOrderCount = todaysOrders.length;
+                    const avgOrderValue = todayOrderCount > 0 ? todayRevenue / todayOrderCount : 0;
+                    
+                    document.getElementById('kpi-today-revenue').innerText = `₹${todayRevenue.toFixed(2)}`;
+                    document.getElementById('kpi-today-orders').innerText = todayOrderCount;
+                    document.getElementById('kpi-avg-order-value').innerText = `₹${avgOrderValue.toFixed(2)}`;
+                    document.getElementById('kpi-total-menu-items').innerText = App.state.menuItems.length;
+                },
+
+                renderCharts() {
+                    this.renderRevenueChart();
+                    this.renderCategoryChart();
+                    this.renderPopularItemsChart();
+                },
+
+                // Helper to destroy a chart if it exists
+                destroyChart(chartId) {
+                    if (this.charts[chartId]) {
+                        this.charts[chartId].destroy();
+                    }
+                },
+
+                renderRevenueChart() {
+                    this.destroyChart('revenue');
+                    const ctx = document.getElementById('revenue-chart').getContext('2d');
+                    
+                    const labels = [];
+                    const data = [];
+                    for (let i = 6; i >= 0; i--) {
+                        const d = new Date();
+                        d.setDate(d.getDate() - i);
+                        const dateString = d.toISOString().slice(0, 10);
+                        labels.push(d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }));
+                        
+                        const dailyRevenue = App.state.orders
+                            .filter(o => o.timestamp.startsWith(dateString))
+                            .reduce((sum, order) => sum + order.totalValue, 0);
+                        data.push(dailyRevenue);
+                    }
+                    
+                    this.charts.revenue = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Revenue',
+                                data: data,
+                                backgroundColor: 'rgba(229, 115, 115, 0.2)',
+                                borderColor: 'rgba(229, 115, 115, 1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                            }]
+                        },
+                        options: { scales: { y: { beginAtZero: true } } }
+                    });
+                },
+
+                renderCategoryChart() {
+                    this.destroyChart('category');
+                    const ctx = document.getElementById('category-chart').getContext('2d');
+                    
+                    const categorySales = {};
+                    App.state.orders.forEach(order => {
+                        order.items.forEach(item => {
+                            const menuItem = App.state.menuItems.find(mi => mi.name === item.name);
+                            if (menuItem) {
+                                categorySales[menuItem.category] = (categorySales[menuItem.category] || 0) + (menuItem.price * item.qty);
+                            }
+                        });
+                    });
+
+                    const labels = Object.keys(categorySales);
+                    const data = Object.values(categorySales);
+
+                    this.charts.category = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: data,
+                                backgroundColor: ['#E57373', '#81C784', '#64B5F6', '#FFD54F', '#9575CD'],
+                            }]
+                        }
+                    });
+                },
+
+                renderPopularItemsChart() {
+                    this.destroyChart('popular');
+                    const ctx = document.getElementById('popular-items-chart').getContext('2d');
+                    const today = new Date().toISOString().slice(0, 10);
+                    const todaysOrders = App.state.orders.filter(o => o.timestamp.startsWith(today));
+
+                    const itemCounts = {};
+                    todaysOrders.forEach(order => {
+                        order.items.forEach(item => {
+                            itemCounts[item.name] = (itemCounts[item.name] || 0) + item.qty;
+                        });
+                    });
+
+                    const sortedItems = Object.entries(itemCounts)
+                        .sort(([,a],[,b]) => b - a)
+                        .slice(0, 5);
+
+                    const labels = sortedItems.map(item => item[0]);
+                    const data = sortedItems.map(item => item[1]);
+
+                    this.charts.popular = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Quantity Sold Today',
+                                data: data,
+                                backgroundColor: '#66BB6A',
+                            }]
+                        },
+                        options: { indexAxis: 'y' }
+                    });
+                }
+            },
+
+            Menu: {
+                init() {
+                    document.getElementById('add-menu-item-btn').addEventListener('click', () => this.showAddItemModal());
+                    document.getElementById('menu-search').addEventListener('input', () => this.render());
+                    document.getElementById('menu-category-filter').addEventListener('change', () => this.render());
+                    document.getElementById('menu-table-body').addEventListener('click', (e) => {
+                        if (e.target.closest('.edit-btn')) {
+                            const id = e.target.closest('.edit-btn').dataset.id;
+                            this.showEditItemModal(id);
+                        }
+                        if (e.target.closest('.delete-btn')) {
+                            const id = e.target.closest('.delete-btn').dataset.id;
+                            if (confirm('Are you sure you want to delete this item?')) {
+                                this.deleteItem(id);
+                            }
+                        }
+                    });
+                },
+                
+                render() {
+                    this.renderCategoryFilter();
+                    const tableBody = document.getElementById('menu-table-body');
+                    const searchValue = document.getElementById('menu-search').value.toLowerCase();
+                    const categoryValue = document.getElementById('menu-category-filter').value;
+
+                    const filteredItems = App.state.menuItems.filter(item => {
+                        const nameMatch = item.name.toLowerCase().includes(searchValue);
+                        const categoryMatch = categoryValue === 'all' || item.category === categoryValue;
+                        return nameMatch && categoryMatch;
+                    });
+
+                    tableBody.innerHTML = filteredItems.map(item => `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.category}</td>
+                            <td>${item.price.toFixed(2)}</td>
+                            <td>${item.cost.toFixed(2)}</td>
+                            <td class="action-buttons">
+                                <button class="edit-btn" data-id="${item.id}"><i class="bi bi-pencil-square"></i></button>
+                                <button class="delete-btn" data-id="${item.id}"><i class="bi bi-trash-fill"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                },
+                
+                renderCategoryFilter() {
+                    const categories = [...new Set(App.state.menuItems.map(item => item.category))];
+                    const filter = document.getElementById('menu-category-filter');
+                    const currentValue = filter.value; // Preserve current selection
+                    // Keep 'All Categories' option
+                    filter.innerHTML = '<option value="all">All Categories</option>' + categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+                    // Restore the previous selection if it still exists
+                    if (currentValue && (currentValue === 'all' || categories.includes(currentValue))) {
+                        filter.value = currentValue;
+                    }
+                },
+
+                getFormHTML(item = {}) {
+                    return `
+                        <form id="menu-item-form">
+                            <input type="hidden" id="menu-item-id" value="${item.id || ''}">
+                            <div class="form-group">
+                                <label for="menu-item-name">Item Name</label>
+                                <input type="text" id="menu-item-name" value="${item.name || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="menu-item-category">Category</label>
+                                <input type="text" id="menu-item-category" value="${item.category || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="menu-item-price">Price (₹)</label>
+                                <input type="number" id="menu-item-price" value="${item.price || ''}" required step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="menu-item-cost">Cost to Make (₹)</label>
+                                <input type="number" id="menu-item-cost" value="${item.cost || ''}" required step="0.01">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" onclick="App.closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Item</button>
+                            </div>
+                        </form>
+                    `;
+                },
+                
+                showAddItemModal() {
+                    App.openModal('Add New Menu Item', this.getFormHTML());
+                    document.getElementById('menu-item-form').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.saveItem();
+                    });
+                },
+
+                showEditItemModal(id) {
+                    const item = App.state.menuItems.find(i => i.id == id);
+                    App.openModal('Edit Menu Item', this.getFormHTML(item));
+                    document.getElementById('menu-item-form').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.saveItem(id);
+                    });
+                },
+
+                saveItem(id = null) {
+                    const name = document.getElementById('menu-item-name').value;
+                    const category = document.getElementById('menu-item-category').value;
+                    const price = parseFloat(document.getElementById('menu-item-price').value);
+                    const cost = parseFloat(document.getElementById('menu-item-cost').value);
+
+                    if (!name || !category || isNaN(price) || isNaN(cost)) {
+                        alert('Please fill all fields correctly.');
+                        return;
+                    }
+
+                    if (id) {
+                        // Update existing
+                        const itemIndex = App.state.menuItems.findIndex(i => i.id == id);
+                        App.state.menuItems[itemIndex] = { id: parseInt(id), name, category, price, cost };
+                    } else {
+                        // Add new
+                        const newId = App.state.menuItems.length > 0 ? Math.max(...App.state.menuItems.map(i => i.id)) + 1 : 1;
+                        App.state.menuItems.push({ id: newId, name, category, price, cost });
+                    }
+
+                    App.saveState();
+                    App.closeModal();
+                    this.render();
+                },
+                
+                deleteItem(id) {
+                    App.state.menuItems = App.state.menuItems.filter(i => i.id != id);
+                    App.saveState();
+                    this.render();
+                }
+            },
+            
+            Orders: {
+                currentOrder: [],
+                init() {
+                    document.getElementById('new-order-form').addEventListener('submit', e => {
+                        e.preventDefault();
+                        this.addItemToCurrentOrder();
+                    });
+                    document.getElementById('confirm-order-btn').addEventListener('click', () => this.confirmOrder());
+                    document.getElementById('export-orders-btn').addEventListener('click', () => this.exportToCSV());
+                    document.getElementById('import-orders-btn').addEventListener('click', () => this.importFromCSV());
+                    document.getElementById('csv-file-input').addEventListener('change', (e) => this.handleCSVFile(e));
+                    
+                    // Event delegation for delete buttons
+                    document.getElementById('orders-table-body').addEventListener('click', (e) => {
+                        if (e.target.closest('.delete-btn')) {
+                            const orderId = e.target.closest('.delete-btn').dataset.orderId;
+                            this.deleteOrder(orderId);
+                        }
+                    });
+                    
+                    const itemNameInput = document.getElementById('order-item-name');
+                    const autocompleteResults = document.getElementById('autocomplete-results');
+
+                    itemNameInput.addEventListener('input', () => {
+                        const query = itemNameInput.value.toLowerCase();
+                        if (query.length < 1) {
+                            autocompleteResults.innerHTML = '';
+                            autocompleteResults.style.display = 'none';
+                            return;
+                        }
+                        const results = App.state.menuItems.filter(item => item.name.toLowerCase().includes(query));
+                        autocompleteResults.innerHTML = results.map(item => `<li data-name="${item.name}">${item.name} - ₹${item.price}</li>`).join('');
+                        autocompleteResults.style.display = 'block';
+                    });
+
+                    autocompleteResults.addEventListener('click', e => {
+                        if (e.target.tagName === 'LI') {
+                            itemNameInput.value = e.target.dataset.name;
+                            autocompleteResults.innerHTML = '';
+                            autocompleteResults.style.display = 'none';
+                        }
+                    });
+
+                     document.addEventListener('click', (e) => {
+                        if (!e.target.closest('#new-order-form')) {
+                             autocompleteResults.style.display = 'none';
+                        }
+                    });
+                },
+
+                render() {
+                    this.renderCurrentOrder();
+                    this.renderPastOrders();
+                },
+
+                renderCurrentOrder() {
+                    const list = document.getElementById('current-order-list');
+                    const totalEl = document.getElementById('current-order-total');
+                    
+                    if (this.currentOrder.length === 0) {
+                        list.innerHTML = '<li>No items added yet.</li>';
+                    } else {
+                        list.innerHTML = this.currentOrder.map((item, index) => `
+                            <li>
+                                <span>${item.qty}x ${item.name}</span>
+                                <span>₹${(item.price * item.qty).toFixed(2)}</span>
+                            </li>
+                        `).join('');
+                    }
+
+                    const totalValue = this.currentOrder.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                    totalEl.innerText = `Total: ₹${totalValue.toFixed(2)}`;
+                },
+
+                renderPastOrders() {
+                    const tableBody = document.getElementById('orders-table-body');
+                    tableBody.innerHTML = App.state.orders
+                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // Show newest first
+                        .map(order => `
+                        <tr>
+                            <td>${order.orderId}</td>
+                            <td>${new Date(order.timestamp).toLocaleString()}</td>
+                            <td>${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</td>
+                            <td>${order.totalValue.toFixed(2)}</td>
+                            <td class="action-buttons">
+                                <button class="delete-btn" data-order-id="${order.orderId}"><i class="bi bi-trash-fill"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                },
+                
+                addItemToCurrentOrder() {
+                    const itemName = document.getElementById('order-item-name').value;
+                    const qty = parseInt(document.getElementById('order-item-qty').value);
+                    const menuItem = App.state.menuItems.find(i => i.name === itemName);
+
+                    if (!menuItem) {
+                        alert('Item not found in menu.');
+                        return;
+                    }
+                    if (isNaN(qty) || qty < 1) {
+                        alert('Invalid quantity.');
+                        return;
+                    }
+
+                    this.currentOrder.push({ name: menuItem.name, qty: qty, price: menuItem.price });
+                    this.renderCurrentOrder();
+                    
+                    // Reset form
+                    document.getElementById('order-item-name').value = '';
+                    document.getElementById('order-item-qty').value = 1;
+                    document.getElementById('order-item-name').focus();
+                },
+
+                confirmOrder() {
+                    if (this.currentOrder.length === 0) {
+                        alert('Cannot confirm an empty order.');
+                        return;
+                    }
+                    const totalValue = this.currentOrder.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                    const newOrder = {
+                        orderId: `ORD-${Date.now()}`,
+                        timestamp: new Date().toISOString(),
+                        items: this.currentOrder,
+                        totalValue: totalValue
+                    };
+
+                    App.state.orders.push(newOrder);
+                    App.saveState();
+
+                    this.currentOrder = [];
+                    this.render();
+                    alert('Order confirmed successfully!');
+                },
+                
+                deleteOrder(orderId) {
+                    if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+                        App.state.orders = App.state.orders.filter(o => o.orderId !== orderId);
+                        App.saveState();
+                        this.renderPastOrders();
+                    }
+                },
+
+                exportToCSV() {
+                    let csvContent = "data:text/csv;charset=utf-8,";
+                    csvContent += "OrderID,Timestamp,Items,Total\r\n";
+
+                    App.state.orders.forEach(order => {
+                        const itemsStr = order.items.map(i => `${i.qty}x ${i.name}`).join(' | ');
+                        const row = [order.orderId, order.timestamp, `"${itemsStr}"`, order.totalValue].join(',');
+                        csvContent += row + "\r\n";
+                    });
+
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", `melan_orders_${new Date().toISOString().slice(0,10)}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                },
+
+                importFromCSV() {
+                    document.getElementById('csv-file-input').click();
+                },
+
+                handleCSVFile(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    if (!file.name.toLowerCase().endsWith('.csv')) {
+                        alert('Please select a CSV file.');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            this.parseCSVData(e.target.result);
+                        } catch (error) {
+                            console.error('Error parsing CSV:', error);
+                            alert('Error parsing CSV file. Please ensure it matches the exported format.');
+                        }
+                    };
+                    reader.readAsText(file);
+                    
+                    // Reset the file input
+                    event.target.value = '';
+                },
+
+                parseCSVData(csvText) {
+                    console.log('CSV Content:', csvText);
+                    const lines = csvText.trim().split('\n');
+                    console.log('Lines:', lines);
+                    if (lines.length < 2) {
+                        alert('CSV file appears to be empty or invalid.');
+                        return;
+                    }
+
+                    const headers = lines[0].split(',').map(h => h.trim().replace(/['"]/g, ''));
+                    console.log('Found headers:', headers);
+                    
+                    const requiredHeaders = ['OrderID', 'Timestamp', 'Items', 'Total'];
+                    const missingHeaders = requiredHeaders.filter(req => !headers.includes(req));
+                    
+                    if (missingHeaders.length > 0) {
+                        alert(`CSV file format is incorrect.\nExpected columns: ${requiredHeaders.join(', ')}\nFound columns: ${headers.join(', ')}\nMissing: ${missingHeaders.join(', ')}`);
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    let skippedCount = 0;
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+
+                        try {
+                            // Parse CSV line with proper handling of quoted fields
+                            const fields = this.parseCSVLine(line);
+                            
+                            if (fields.length >= 4) {
+                                const orderId = fields[0];
+                                const timestamp = fields[1];
+                                const itemsStr = fields[2];
+                                const totalValue = parseFloat(fields[3]);
+
+                                // Check if order already exists
+                                if (App.state.orders.some(order => order.orderId === orderId)) {
+                                    skippedCount++;
+                                    continue;
+                                }
+
+                                // Parse items string (format: "1x Item Name | 2x Another Item")
+                                const items = [];
+                                const itemParts = itemsStr.split(' | ');
+                                
+                                for (const itemPart of itemParts) {
+                                    const match = itemPart.match(/(\d+)x\s+(.+)/);
+                                    if (match) {
+                                        const qty = parseInt(match[1]);
+                                        const name = match[2].trim();
+                                        
+                                        // Try to find the menu item to get the price
+                                        const menuItem = App.state.menuItems.find(mi => mi.name === name);
+                                        const price = menuItem ? menuItem.price : totalValue / itemParts.length; // Fallback price estimation
+                                        
+                                        items.push({ name, qty, price });
+                                    }
+                                }
+
+                                if (items.length > 0) {
+                                    const newOrder = {
+                                        orderId,
+                                        timestamp,
+                                        items,
+                                        totalValue
+                                    };
+
+                                    App.state.orders.push(newOrder);
+                                    importedCount++;
+                                }
+                            }
+                        } catch (error) {
+                            console.warn('Error parsing line:', line, error);
+                            skippedCount++;
+                        }
+                    }
+
+                    if (importedCount > 0) {
+                        App.saveState();
+                        this.renderPastOrders();
+                        alert(`Successfully imported ${importedCount} orders. ${skippedCount} orders were skipped (duplicates or invalid data).`);
+                    } else {
+                        alert('No valid orders found in the CSV file.');
+                    }
+                },
+
+                parseCSVLine(line) {
+                    const fields = [];
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            fields.push(current.trim());
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    
+                    fields.push(current.trim());
+                    return fields;
+                }
+            },
+
+            Inventory: {
+                 init() {
+                    document.getElementById('add-inventory-item-btn').addEventListener('click', () => this.showAddItemModal());
+                    document.getElementById('inventory-table-body').addEventListener('click', (e) => {
+                        if (e.target.closest('.edit-btn')) {
+                            const id = e.target.closest('.edit-btn').dataset.id;
+                            this.showEditItemModal(id);
+                        }
+                        if (e.target.closest('.delete-btn')) {
+                            const id = e.target.closest('.delete-btn').dataset.id;
+                            if (confirm('Are you sure you want to delete this inventory item?')) {
+                                this.deleteItem(id);
+                            }
+                        }
+                    });
+                },
+
+                render() {
+                    const tableBody = document.getElementById('inventory-table-body');
+                    tableBody.innerHTML = App.state.inventory.map(item => `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.currentStock}</td>
+                            <td>${item.threshold}</td>
+                            <td>${item.currentStock <= item.threshold ? '<span class="status-reorder">Reorder Needed</span>' : 'In Stock'}</td>
+                            <td class="action-buttons">
+                                <button class="edit-btn" data-id="${item.id}"><i class="bi bi-pencil-square"></i></button>
+                                <button class="delete-btn" data-id="${item.id}"><i class="bi bi-trash-fill"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    this.renderReorderSuggestions();
+                },
+
+                renderReorderSuggestions() {
+                    const reorderItems = App.state.inventory.filter(item => item.currentStock <= item.threshold);
+                    const listEl = document.getElementById('reorder-list');
+                    const sectionEl = document.getElementById('reorder-section');
+                    const titleEl = document.getElementById('reorder-title');
+                    
+                    if (reorderItems.length > 0) {
+                        // Show reorder needed state
+                        sectionEl.className = 'reorder-suggestions reorder-needed';
+                        titleEl.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Reorder Needed';
+                        listEl.innerHTML = reorderItems.map(item => `<li>${item.name} (Current: ${item.currentStock}, Threshold: ${item.threshold})</li>`).join('');
+                        sectionEl.style.display = 'block';
+                    } else {
+                        // Show in stock state
+                        sectionEl.className = 'reorder-suggestions in-stock';
+                        titleEl.innerHTML = '<i class="bi bi-check-circle-fill"></i> All Items In Stock';
+                        listEl.innerHTML = '<li>All stock levels are above their thresholds. No reordering needed!</li>';
+                        sectionEl.style.display = 'block';
+                    }
+                },
+
+                getFormHTML(item = {}) {
+                    return `
+                        <form id="inventory-item-form">
+                            <input type="hidden" id="inventory-item-id" value="${item.id || ''}">
+                            <div class="form-group">
+                                <label for="inventory-item-name">Item Name</label>
+                                <input type="text" id="inventory-item-name" value="${item.name || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inventory-item-stock">Current Stock (units)</label>
+                                <input type="number" id="inventory-item-stock" value="${item.currentStock || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inventory-item-threshold">Low Stock Threshold</label>
+                                <input type="number" id="inventory-item-threshold" value="${item.threshold || ''}" required>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" onclick="App.closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Item</button>
+                            </div>
+                        </form>
+                    `;
+                },
+
+                showAddItemModal() {
+                    App.openModal('Add New Inventory Item', this.getFormHTML());
+                    document.getElementById('inventory-item-form').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.saveItem();
+                    });
+                },
+
+                showEditItemModal(id) {
+                    const item = App.state.inventory.find(i => i.id == id);
+                    App.openModal('Edit Inventory Item', this.getFormHTML(item));
+                     document.getElementById('inventory-item-form').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.saveItem(id);
+                    });
+                },
+
+                saveItem(id = null) {
+                    const name = document.getElementById('inventory-item-name').value;
+                    const currentStock = parseInt(document.getElementById('inventory-item-stock').value);
+                    const threshold = parseInt(document.getElementById('inventory-item-threshold').value);
+
+                    if (!name || isNaN(currentStock) || isNaN(threshold)) {
+                        alert('Please fill all fields correctly.');
+                        return;
+                    }
+                    
+                    if (id) {
+                        const itemIndex = App.state.inventory.findIndex(i => i.id == id);
+                        App.state.inventory[itemIndex] = { id: parseInt(id), name, currentStock, threshold };
+                    } else {
+                        const newId = App.state.inventory.length > 0 ? Math.max(...App.state.inventory.map(i => i.id)) + 1 : 1;
+                        App.state.inventory.push({ id: newId, name, currentStock, threshold });
+                    }
+
+                    App.saveState();
+                    App.closeModal();
+                    this.render();
+                },
+
+                deleteItem(id) {
+                    App.state.inventory = App.state.inventory.filter(i => i.id != id);
+                    App.saveState();
+                    this.render();
+                }
+            }
+        };
+
+        // Let's get the party started!
+        App.init();
+
+    });
+    </script>
+</body>
+</html>
