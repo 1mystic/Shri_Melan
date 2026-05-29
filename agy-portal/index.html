@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShriMelan - Elite Restaurant Management & Insights Portal</title>
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for Advanced Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Identity Services (OAuth) and GAPI client libraries -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- ==========================================================================
+             Header Navigation
+             ========================================================================== -->
+        <header class="main-header">
+            <div class="logo-wrapper">
+                <div class="logo-circle">S</div>
+                <div class="logo-text">Shri<span>Melan</span></div>
+            </div>
+
+            <nav class="header-actions">
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="theme-btn" title="Toggle Dark/Light Mode">
+                    <i data-lucide="moon"></i>
+                </button>
+                
+                <!-- Customer Cart (User View only) -->
+                <button class="cart-trigger" id="cart-btn" title="View Cart">
+                    <i data-lucide="shopping-cart"></i>
+                    <span class="cart-count" id="cart-counter">0</span>
+                </button>
+
+                <!-- Portal View Toggle -->
+                <button class="portal-toggle" id="portal-btn">
+                    <i data-lucide="shield-check"></i>
+                    <span id="portal-btn-text">Admin Portal</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- ==========================================================================
+             Main SPA View Containers
+             ========================================================================== -->
+        <main class="view-container">
+
+            <!-- 1. USER VIEW: CUSTOMER LANDING PAGE -->
+            <section id="user-view" class="spa-view active">
+                <div class="user-landing">
+                    <!-- Hero Section -->
+                    <div class="hero-section">
+                        <div class="hero-content">
+                            <span class="hero-tag">Welcome to ShriMelan</span>
+                            <h1>Savor the Taste of <span>Perfection.</span></h1>
+                            <p>Experience gourmet dining at its finest. Scan your table, browse our chef's curated selections, and order delicious meals directly to your table instantly.</p>
+                            <div class="hero-actions-group">
+                                <button class="btn-primary" onclick="document.getElementById('menu-section').scrollIntoView();">
+                                    Browse Menu <i data-lucide="arrow-right" style="display:inline-block; vertical-align:middle; width:18px; margin-left:6px;"></i>
+                                </button>
+                                <button class="btn-secondary" id="hero-order-table-btn">
+                                    Order to Table
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hero-visual">
+                            <div class="organic-shape"></div>
+                            <div class="plate-container">
+                                <img src="gourmet_plate.png" alt="Signature Gourmet Salad" class="rotating-plate">
+                                <div class="badge-float badge-1">
+                                    <div class="badge-icon"><i data-lucide="star"></i></div>
+                                    <div class="badge-info">
+                                        <h4>4.9 Rating</h4>
+                                        <p>1,200+ Reviews</p>
+                                    </div>
+                                </div>
+                                <div class="badge-float badge-2">
+                                    <div class="badge-icon"><i data-lucide="flame"></i></div>
+                                    <div class="badge-info">
+                                        <h4>Hot & Fresh</h4>
+                                        <p>Made on Order</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Menu Explorer Section -->
+                    <div class="menu-explorer" id="menu-section">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <h2>Curated Menu</h2>
+                                <p>Select a category to browse our delicious fresh dishes</p>
+                            </div>
+                            <div class="search-bar">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="menu-search-input" placeholder="Search delicious dishes...">
+                            </div>
+                        </div>
+
+                        <!-- Categories List -->
+                        <div class="categories-container" id="category-tabs-container">
+                            <!-- Category tabs will be rendered by JS -->
+                        </div>
+
+                        <!-- Menu Grid -->
+                        <div class="menu-grid" id="menu-items-grid">
+                            <!-- Menu cards will be rendered dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 2. ADMIN VIEW: MANAGEMENT & WAITER POS PORTAL -->
+            <section id="admin-view" class="spa-view">
+                <div class="admin-view">
+                    <!-- Sidebar Left Navigation -->
+                    <aside class="admin-sidebar">
+                        <div>
+                            <div class="sidebar-title">Management</div>
+                            <ul class="sidebar-menu" style="margin-top: 15px;">
+                                <li class="sidebar-link active" data-target="overview-subpage">
+                                    <i data-lucide="layout-dashboard"></i>
+                                    <span>Overview</span>
+                                </li>
+                                <li class="sidebar-link" data-target="pos-subpage">
+                                    <i data-lucide="chef-hat"></i>
+                                    <span>Table POS</span>
+                                </li>
+                                <li class="sidebar-link" data-target="menu-subpage">
+                                    <i data-lucide="clipboard-list"></i>
+                                    <span>Menu & Stock</span>
+                                </li>
+                                <li class="sidebar-link" data-target="analytics-subpage">
+                                    <i data-lucide="trending-up"></i>
+                                    <span>Business Insights</span>
+                                </li>
+                                <li class="sidebar-link" data-target="sync-subpage">
+                                    <i data-lucide="cloud-lightning"></i>
+                                    <span>Drive Sync</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </aside>
+
+                    <!-- Right Subpages Render Area -->
+                    <div class="admin-content-shell">
+                        
+                        <!-- Subpage A: Overview Dashboard -->
+                        <div id="overview-subpage" class="admin-subpage active">
+                            <div class="crud-header">
+                                <div>
+                                    <h2>Restaurant Overview</h2>
+                                    <p>Live status tracker of tables, stock alerts, and quick metrics.</p>
+                                </div>
+                            </div>
+
+                            <div class="kpis-grid">
+                                <div class="kpi-card revenue">
+                                    <span class="kpi-title">Active Orders</span>
+                                    <div class="kpi-value" id="overview-active-orders-count">0</div>
+                                    <span class="kpi-growth up"><i data-lucide="users"></i> Dining In</span>
+                                </div>
+                                <div class="kpi-card profit">
+                                    <span class="kpi-title">Occupied Tables</span>
+                                    <div class="kpi-value" id="overview-occupied-tables-count">0 / 12</div>
+                                    <span class="kpi-growth up"><i data-lucide="check"></i> In Service</span>
+                                </div>
+                                <div class="kpi-card cost">
+                                    <span class="kpi-title">Low Stock Alert</span>
+                                    <div class="kpi-value" id="overview-low-stock-count">0</div>
+                                    <span class="kpi-growth down"><i data-lucide="alert-triangle"></i> Items Low</span>
+                                </div>
+                                <div class="kpi-card orders">
+                                    <span class="kpi-title">Google Drive Status</span>
+                                    <div class="kpi-value" style="font-size: 1.25rem; margin-top: 10px;" id="overview-sync-status">Offline (Local Cache)</div>
+                                    <span class="kpi-growth" id="overview-sync-pill"><i data-lucide="cloud-off"></i> Cloud Unlinked</span>
+                                </div>
+                            </div>
+
+                            <div class="basket-insights-board" style="margin-top: 20px;">
+                                <div class="insight-card">
+                                    <h3>Table Status Quick-Board</h3>
+                                    <div id="overview-table-list" style="display:flex; flex-direction:column; gap:12px; max-height: 350px; overflow-y:auto; padding-right:5px;">
+                                        <!-- Table rows rendered dynamically -->
+                                    </div>
+                                </div>
+                                <div class="insight-card">
+                                    <h3>Recent Orders & Actions</h3>
+                                    <div id="overview-recent-orders-list" style="display:flex; flex-direction:column; gap:12px; max-height: 350px; overflow-y:auto; padding-right:5px;">
+                                        <!-- Recent completed order items -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subpage B: Waiter POS (Table wise checklist ordering) -->
+                        <div id="pos-subpage" class="admin-subpage">
+                            <div class="pos-controls">
+                                <div>
+                                    <h2>Table Order Taking (POS)</h2>
+                                    <p>Select a table to open the Order Ticket Drawer, add items, and manage checkout payment.</p>
+                                </div>
+                                <div class="table-legends">
+                                    <div class="legend-item"><span class="legend-color avail"></span> Available</div>
+                                    <div class="legend-item"><span class="legend-color busy"></span> Active Order</div>
+                                    <div class="legend-item"><span class="legend-color billing"></span> Billing</div>
+                                    <div class="legend-item"><span class="legend-color pending"></span> Table Order Draft</div>
+                                </div>
+                            </div>
+
+                            <!-- Physical Restaurant Layout Map -->
+                            <div class="tables-grid" id="pos-tables-grid">
+                                <!-- Tables dynamically rendered from Table 1 to 12 -->
+                            </div>
+                        </div>
+
+                        <!-- Subpage C: Menu CRUD Management & Inventory -->
+                        <div id="menu-subpage" class="admin-subpage">
+                            <div class="crud-header">
+                                <div>
+                                    <h2>Menu & Inventory Catalog</h2>
+                                    <p>Manage items, selling price, raw preparation cost, and check live stock levels.</p>
+                                </div>
+                                <button class="btn-primary" id="add-menu-item-btn" style="padding: 10px 24px;">
+                                    <i data-lucide="plus" style="display:inline-block; vertical-align:middle; width:16px; margin-right:4px;"></i> Add New Item
+                                </button>
+                            </div>
+
+                            <!-- Data Table -->
+                            <div class="table-responsive">
+                                <table class="data-table" id="inventory-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item ID</th>
+                                            <th>Dish Name</th>
+                                            <th>Category</th>
+                                            <th>Cost Price ($)</th>
+                                            <th>Selling Price ($)</th>
+                                            <th>Unit Margin ($)</th>
+                                            <th>Stock Qty</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inventory-table-body">
+                                        <!-- Table rows rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Subpage D: Advanced Analytics Dashboard & Client algorithms -->
+                        <div id="analytics-subpage" class="admin-subpage">
+                            <div class="crud-header">
+                                <div>
+                                    <h2>Business Insights & Analytics</h2>
+                                    <p>Client-side intelligence calculating basket analysis, item affinity rules, and profitability margins.</p>
+                                </div>
+                                <button class="btn-secondary" id="analytics-export-csv-btn" style="padding: 10px 20px;">
+                                    <i data-lucide="download" style="display:inline-block; vertical-align:middle; width:16px; margin-right:4px;"></i> Export Analytics CSV
+                                </button>
+                            </div>
+
+                            <!-- KPI Aggregates -->
+                            <div class="kpis-grid">
+                                <div class="kpi-card revenue">
+                                    <span class="kpi-title">Gross Revenue</span>
+                                    <div class="kpi-value" id="stats-total-revenue">$0.00</div>
+                                    <span class="kpi-growth up" id="stats-revenue-growth"><i data-lucide="trending-up"></i> Live calculation</span>
+                                </div>
+                                <div class="kpi-card profit">
+                                    <span class="kpi-title">Net Profit</span>
+                                    <div class="kpi-value" id="stats-net-profit">$0.00</div>
+                                    <span class="kpi-growth up" id="stats-profit-margin">0% Margin</span>
+                                </div>
+                                <div class="kpi-card cost">
+                                    <span class="kpi-title">Direct Costs</span>
+                                    <div class="kpi-value" id="stats-total-costs">$0.00</div>
+                                    <span class="kpi-growth down"><i data-lucide="arrow-down"></i> Food & Ingredient costs</span>
+                                </div>
+                                <div class="kpi-card orders">
+                                    <span class="kpi-title">Orders Processed</span>
+                                    <div class="kpi-value" id="stats-total-orders">0</div>
+                                    <span class="kpi-growth" id="stats-aov">$0.00 Avg Ticket</span>
+                                </div>
+                            </div>
+
+                            <!-- Charts row -->
+                            <div class="charts-grid">
+                                <div class="chart-card">
+                                    <div class="chart-header">
+                                        <h3>Menu Engineering Strategy (BCG Matrix)</h3>
+                                        <span class="stock-pill in" style="font-size:0.75rem;">Volume vs Margin per Unit</span>
+                                    </div>
+                                    <div class="chart-wrapper">
+                                        <canvas id="bcgScatterChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="chart-card">
+                                    <div class="chart-header">
+                                        <h3>Revenue by Food Category</h3>
+                                    </div>
+                                    <div class="chart-wrapper">
+                                        <canvas id="categoryPieChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Financial trends -->
+                            <div class="chart-card" style="min-height:300px;">
+                                <div class="chart-header">
+                                    <h3>Financial Sales Trend</h3>
+                                    <p style="font-size:0.8rem; color:var(--text-secondary);">Daily aggregation of revenues, costs, and profits</p>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="financialTrendChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Apriori & BCG lists -->
+                            <div class="basket-insights-board">
+                                <!-- Market Basket Apriori Rules -->
+                                <div class="insight-card">
+                                    <div class="chart-header">
+                                        <h3>Basket Analysis (Apriori Algorithm)</h3>
+                                        <span class="stock-pill low" style="font-size:0.75rem;" id="apriori-min-support-label">Support: ≥10%</span>
+                                    </div>
+                                    <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:-8px;">Discovers frequent item combinations to create successful menu combo packages.</p>
+                                    <ul class="rules-list" id="apriori-rules-list">
+                                        <!-- Rules list items rendered dynamically -->
+                                    </ul>
+                                </div>
+                                
+                                <!-- Smart Recommendations -->
+                                <div class="insight-card">
+                                    <h3>Strategic Promotion Engine</h3>
+                                    <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:-8px;">AI suggestions derived from BCG menu positioning and basket correlation rules.</p>
+                                    <div class="recs-list" id="strategic-recs-list">
+                                        <!-- Smart recommendations rendered dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subpage E: Drive Sync & Authorization -->
+                        <div id="sync-subpage" class="admin-subpage">
+                            <div class="crud-header">
+                                <div>
+                                    <h2>Google Drive Integration Sync</h2>
+                                    <p>Connect your business with Google Cloud Drive to backup data and synchronize catalogs globally in pure CSV format.</p>
+                                </div>
+                            </div>
+
+                            <!-- Sync Connection Panel -->
+                            <div class="drive-sync-panel">
+                                <div class="sync-status-details">
+                                    <div class="sync-status-icon" id="sync-status-icon-main">
+                                        <i data-lucide="cloud-off"></i>
+                                    </div>
+                                    <div class="sync-details">
+                                        <h4 id="sync-connection-title">Disconnected</h4>
+                                        <p id="sync-connection-desc">All restaurant data is currently stored in LocalStorage. Authorize Drive to enable cloud backups.</p>
+                                    </div>
+                                </div>
+                                <div class="sync-actions-group">
+                                    <button class="google-signin-btn" id="drive-auth-btn">
+                                        <i data-lucide="log-in" style="width:16px;"></i> Link Google Account
+                                    </button>
+                                    <button class="btn-secondary" id="drive-manual-sync-btn" style="display:none;">
+                                        <i data-lucide="refresh-cw" style="display:inline-block; vertical-align:middle; width:16px; margin-right:4px;"></i> Sync Now
+                                    </button>
+                                    <button class="btn-secondary" id="drive-signout-btn" style="display:none; color:var(--color-danger); border-color:rgba(239, 68, 68, 0.2);">
+                                        Sign Out
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Custom Client Configurations (Advanced) -->
+                            <div class="insight-card">
+                                <h3>OAuth Credentials (Developer Override)</h3>
+                                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:-8px;">We provide a built-in testing credential flow. To use your own Google developer account, configure them below:</p>
+                                <div class="form-row-2" style="margin-top:10px;">
+                                    <div class="form-group">
+                                        <label for="sync-client-id">Google Client ID</label>
+                                        <input type="text" id="sync-client-id" placeholder="Your Client ID.apps.googleusercontent.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sync-api-key">Google API Key</label>
+                                        <input type="password" id="sync-api-key" placeholder="AIzaSy...">
+                                    </div>
+                                </div>
+                                <div style="display:flex; justify-content: flex-end; margin-top:14px;">
+                                    <button class="btn-primary" id="save-oauth-config-btn" style="padding: 8px 18px; font-size: 0.85rem;">Save Custom Keys</button>
+                                </div>
+                            </div>
+
+                            <!-- Sync log traces -->
+                            <div class="insight-card">
+                                <h3>Sync & Connection Activity Log</h3>
+                                <div id="sync-logs" style="background-color:var(--bg-primary); padding:16px; border-radius:var(--border-radius-md); font-family:monospace; font-size:0.8rem; max-height:220px; overflow-y:auto; line-height:1.4;">
+                                    [SYSTEM] Local state initialized.<br>
+                                    [SYSTEM] Awaiting Google Drive OAuth link authorization...
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+         Modals and Overlay Drawers
+         ========================================================================== -->
+
+    <!-- Waiter POS Table Drawer Overlay (Order taking checkboxes) -->
+    <div class="drawer-backdrop" id="pos-drawer-backdrop">
+        <div class="order-drawer">
+            <div class="drawer-header">
+                <div class="drawer-header-left">
+                    <h3 id="pos-drawer-title">Table 1 - Order Ticket</h3>
+                    <p style="font-size:0.8rem; color:var(--text-secondary);" id="pos-drawer-subtitle">Waiter Order Session</p>
+                </div>
+                <button class="drawer-close" id="pos-drawer-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="drawer-content">
+                <!-- Search & Select Menu Items -->
+                <div class="pos-order-builder">
+                    <h4>Select Dishes from Menu</h4>
+                    <div class="pos-search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="pos-menu-search" placeholder="Search dishes to add...">
+                    </div>
+                    
+                    <!-- Search list of checkboxes -->
+                    <div class="pos-menu-list" id="pos-menu-checkboxes-list">
+                        <!-- Checkboxes rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Quantity Adjusters list for selected items -->
+                <div class="pos-selected-items-box">
+                    <div class="pos-selected-title">Quantities & Portions</div>
+                    <div id="pos-selected-qtys-container" style="display:flex; flex-direction:column; gap:10px;">
+                        <p style="font-size:0.85rem; color:var(--text-secondary); font-style:italic;">No dishes checked yet.</p>
+                    </div>
+                </div>
+
+                <!-- Kitchen Special instructions -->
+                <div class="form-group">
+                    <label for="pos-prep-notes">Chef Prep Instructions</label>
+                    <textarea id="pos-prep-notes" rows="3" placeholder="No spicy, extra cheese, dressing on side..."></textarea>
+                </div>
+            </div>
+
+            <div class="drawer-footer">
+                <div class="bill-summary-row">
+                    <span>Subtotal</span>
+                    <span id="pos-bill-subtotal">$0.00</span>
+                </div>
+                <div class="bill-summary-row">
+                    <span>Tax & Service Charge (10%)</span>
+                    <span id="pos-bill-tax">$0.00</span>
+                </div>
+                <div class="bill-summary-row total">
+                    <span>Total Ticket</span>
+                    <span id="pos-bill-total">$0.00</span>
+                </div>
+                
+                <!-- Payment methods when closing ticket -->
+                <div class="form-group" id="pos-payment-method-group" style="margin-top:10px;">
+                    <label>Settlement Payment Mode</label>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:6px;">
+                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; background:var(--bg-surface); padding:8px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8rem;">
+                            <input type="radio" name="pos-payment-mode" value="Card" checked> Card
+                        </label>
+                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; background:var(--bg-surface); padding:8px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8rem;">
+                            <input type="radio" name="pos-payment-mode" value="UPI"> UPI / Cashless
+                        </label>
+                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; background:var(--bg-surface); padding:8px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8rem;">
+                            <input type="radio" name="pos-payment-mode" value="Cash"> Cash
+                        </label>
+                    </div>
+                </div>
+
+                <div class="drawer-actions">
+                    <button class="btn-secondary" id="pos-save-draft-btn" style="padding:12px;">
+                        Draft Ticket
+                    </button>
+                    <button class="btn-primary" id="pos-checkout-btn" style="padding:12px;">
+                        Pay & Close Table
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Menu Item CRUD Add/Edit Dialog Modal -->
+    <div class="modal-backdrop" id="menu-modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="menu-modal-title">Add Menu Item</h3>
+                <button class="modal-close" id="menu-modal-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <input type="hidden" id="form-item-id">
+                
+                <div class="form-group">
+                    <label for="form-item-name">Dish / Item Name</label>
+                    <input type="text" id="form-item-name" placeholder="e.g., Spicy Tuna Roll" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="form-item-category">Food Category</label>
+                    <select id="form-item-category" required>
+                        <option value="Burgers">Burgers</option>
+                        <option value="Pizza">Pizzas</option>
+                        <option value="Salads">Salads & Bows</option>
+                        <option value="Desserts">Sweet Desserts</option>
+                        <option value="Drinks">Refreshing Drinks</option>
+                    </select>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="form-item-cost">Preparation Cost Price ($)</label>
+                        <input type="number" id="form-item-cost" min="0.01" step="0.01" placeholder="e.g., 2.50" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-item-price">Customer Selling Price ($)</label>
+                        <input type="number" id="form-item-price" min="0.01" step="0.01" placeholder="e.g., 8.99" required>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="form-item-stock">Stock Quantity</label>
+                        <input type="number" id="form-item-stock" min="0" placeholder="e.g., 50" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-item-rating">Mock Popular Rating (1-5)</label>
+                        <input type="number" id="form-item-rating" min="1" max="5" step="0.1" placeholder="e.g., 4.5">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="form-item-desc">Brief Flavor Description</label>
+                    <textarea id="form-item-desc" rows="2" placeholder="Describe the taste, ingredients, or size..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="form-item-img">Image URL (Unsplash or direct link)</label>
+                    <input type="text" id="form-item-img" placeholder="Optional HTTPS Image URL link">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" id="menu-form-cancel-btn" style="padding:10px 20px;">Cancel</button>
+                <button class="btn-primary" id="menu-form-save-btn" style="padding:10px 20px;">Save Dish</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Customer Select Table Modal (User Landing View cart checkout) -->
+    <div class="modal-backdrop" id="customer-table-modal-backdrop">
+        <div class="modal-box" style="width:400px;">
+            <div class="modal-header">
+                <h3>Select Your Table</h3>
+                <button class="modal-close" id="customer-table-modal-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.85rem; color:var(--text-secondary);">To place your order in the kitchen, select the physical table number you are seated at:</p>
+                <div class="form-group" style="margin-top:10px;">
+                    <label for="customer-table-select">Seated Table Number</label>
+                    <select id="customer-table-select" style="font-size:1.1rem; font-weight:700; padding:12px;">
+                        <!-- Options 1 to 12 rendered dynamically -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="customer-table-cancel-btn" style="padding:10px 20px;">Cancel</button>
+                <button class="btn-primary" id="customer-table-submit-btn" style="padding:10px 20px;">Place Kitchen Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Shopping Cart Slide-out Drawer -->
+    <div class="drawer-backdrop" id="customer-cart-backdrop">
+        <div class="order-drawer" style="width: 440px;">
+            <div class="drawer-header">
+                <div class="drawer-header-left">
+                    <h3>Your Table Order</h3>
+                    <p style="font-size:0.8rem; color:var(--text-secondary);" id="customer-cart-table-label">No table selected yet</p>
+                </div>
+                <button class="drawer-close" id="customer-cart-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="drawer-content" id="customer-cart-items-container">
+                <!-- Cart items list rendered dynamically -->
+            </div>
+
+            <div class="drawer-footer">
+                <div class="bill-summary-row">
+                    <span>Order Subtotal</span>
+                    <span id="customer-cart-subtotal">$0.00</span>
+                </div>
+                <div class="bill-summary-row">
+                    <span>Service Tax (10%)</span>
+                    <span id="customer-cart-tax">$0.00</span>
+                </div>
+                <div class="bill-summary-row total">
+                    <span>Grand Total</span>
+                    <span id="customer-cart-total">$0.00</span>
+                </div>
+                <button class="btn-primary" id="customer-cart-checkout-btn" style="width: 100%; padding:14px; margin-top:10px;">
+                    Confirm & Send to Kitchen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Module Links -->
+    <script src="drive.js"></script>
+    <script src="analytics.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
